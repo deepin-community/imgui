@@ -1,0 +1,125 @@
+From ce371c60802adbec953c39e98e7f9fd356bb7a32 Mon Sep 17 00:00:00 2001
+From: yangfl <yangfl@users.noreply.github.com>
+Date: Sat, 25 Jul 2020 01:38:58 +0800
+Subject: [PATCH] add Makefile
+
+---
+ Makefile    | 85 +++++++++++++++++++++++++++++++++++++++++++++++++++++
+ imgui.pc.in | 12 ++++++++
+ 2 files changed, 97 insertions(+)
+ create mode 100644 Makefile
+ create mode 100644 imgui.pc.in
+
+diff --git a/Makefile b/Makefile
+new file mode 100644
+index 00000000..1d151497
+--- /dev/null
++++ b/Makefile
+@@ -0,0 +1,86 @@
++PROJECT = imgui
++
++MULTIARCH ?= $(shell $(CC) --print-multiarch)
++
++PREFIX ?= /usr
++INCLUDEDIR ?= include/imgui
++LIBDIR ?= lib/$(MULTIARCH)
++
++CPPFLAGS += -I. \
++	-DIMGUI_DISABLE_STB_RECT_PACK_IMPLEMENTATION \
++	-DIMGUI_STB_RECT_PACK_FILENAME="<stb/stb_rect_pack.h>" \
++	-DIMGUI_DISABLE_STB_TRUETYPE_IMPLEMENTATION \
++	-DIMGUI_STB_TRUETYPE_FILENAME="<stb/stb_truetype.h>"
++CXXFLAGS += -fPIC
++
++LIBS := freetype2 sdl2
++PKG_CONFIG ?= pkg-config
++LIBS_CPPFLAGS := $(shell $(PKG_CONFIG) --cflags-only-I $(LIBS))
++LIBS_CFLAGS := $(shell $(PKG_CONFIG) --cflags-only-other $(LIBS))
++LIBS_LDFLAGS := $(shell $(PKG_CONFIG) --libs $(LIBS))
++
++CPPFLAGS += $(LIBS_CPPFLAGS)
++CFLAGS += $(LIBS_CFLAGS)
++LDFLAGS += $(LIBS_LDFLAGS)
++
++HEADERS := $(wildcard *.h misc/cpp/*.h misc/freetype/*.h)
++HEADERS_BACKENDS := $(wildcard backends/*.h)
++SRCS := $(wildcard *.cpp misc/cpp/*.cpp misc/freetype/*.cpp) \
++	backends/imgui_impl_allegro5.cpp \
++	backends/imgui_impl_glfw.cpp backends/imgui_impl_glut.cpp \
++	backends/imgui_impl_opengl2.cpp backends/imgui_impl_opengl3.cpp \
++	backends/imgui_impl_sdl2.cpp backends/imgui_impl_sdlrenderer2.cpp \
++	backends/imgui_impl_vulkan.cpp
++OBJS := $(sort $(SRCS:.cpp=.o))
++
++# unused
++LIB_NAME := lib$(PROJECT).so
++SO_NAME := $(LIB_NAME).0
++REAL_NAME := $(LIB_NAME).$(VERSION)
++
++ARLIB := lib$(PROJECT).a
++SHLIB := $(SO_NAME)
++PCFILE := $(PROJECT).pc
++
++.PHONY: all
++all: $(ARLIB) $(PCFILE)
++
++$(ARLIB): $(OBJS)
++	$(AR) rcs $@ $^
++
++$(SHLIB): $(OBJS)
++	$(CXX) -shared -Wl,-soname,$(SO_NAME) -o $@ $^ $(LDFLAGS) -lm -lstb
++
++$(PCFILE): $(PCFILE).in
++	sed 's|@prefix@|$(PREFIX)|; s|@libdir@|$(LIBDIR)|; s|@includedir@|$(INCLUDEDIR)|; s|@version@|$(VERSION)|' $< > $@
++
++.PHONY: clean
++clean:
++	rm -f $(ARLIB) $(SHLIB) $(OBJS) $(PCFILE)
++
++# unused
++.PHONY: install-shared
++install-shared: $(SHLIB)
++	install -d $(DESTDIR)$(PREFIX)/$(LIBDIR) || true
++	install -m 0644 $< $(DESTDIR)$(PREFIX)/$(LIBDIR)/$(REAL_NAME)
++	rm -f $(DESTDIR)$(PREFIX)/$(LIBDIR)/$(SO_NAME)
++	ln -s $(REAL_NAME) $(DESTDIR)$(PREFIX)/$(LIBDIR)/$(SO_NAME)
++	rm -f $(DESTDIR)$(PREFIX)/$(LIBDIR)/$(LIB_NAME)
++	ln -s $(SO_NAME) $(DESTDIR)$(PREFIX)/$(LIBDIR)/$(LIB_NAME)
++
++.PHONY: install-static
++install-static: $(ARLIB)
++	install -d $(DESTDIR)$(PREFIX)/$(LIBDIR) || true
++	install -m 0644 $< $(DESTDIR)$(PREFIX)/$(LIBDIR)/$(ARLIB)
++
++.PHONY: install-header
++install-header: $(HEADERS) $(HEADERS_BACKENDS) $(PCFILE)
++	install -d $(DESTDIR)$(PREFIX)/$(INCLUDEDIR) || true
++	install -m 0644 $(HEADERS) $(DESTDIR)$(PREFIX)/$(INCLUDEDIR)/
++	install -d $(DESTDIR)$(PREFIX)/$(INCLUDEDIR)/backends || true
++	install -m 0644 $(HEADERS_BACKENDS) $(DESTDIR)$(PREFIX)/$(INCLUDEDIR)/backends/
++	install -d $(DESTDIR)$(PREFIX)/$(LIBDIR)/pkgconfig || true
++	install -m 0644 $(PCFILE) $(DESTDIR)$(PREFIX)/$(LIBDIR)/pkgconfig
++
++.PHONY: install
++install: install-static install-header
+diff --git a/imgui.pc.in b/imgui.pc.in
+new file mode 100644
+index 00000000..aad249cd
+--- /dev/null
++++ b/imgui.pc.in
+@@ -0,0 +1,12 @@
++prefix=@prefix@
++libdir=${prefix}/@libdir@
++includedir=${prefix}/@includedir@
++
++Name: imgui
++Description: Bloat-free Immediate Mode Graphical User interface for C++
++Version: @version@
++Requires: stb
++URL: https://github.com/ocornut/imgui
++Libs: -L${libdir} -limgui
++Libs.private: -lm
++Cflags: -I${includedir}
+-- 
+2.30.0
+

@@ -1,4 +1,22 @@
 #!/usr/bin/make -f
+#export DH_VERBOSE = 1
+
+export DEB_BUILD_MAINT_OPTIONS = hardening=+all
+
+export DEB_CFLAGS_MAINT_APPEND  = -Wall -pedantic
+export DEB_LDFLAGS_MAINT_APPEND =
+
+include /usr/share/dpkg/pkg-info.mk
+
+export VERSION := $(shell echo $(DEB_VERSION_UPSTREAM) | sed 's/+[a-z]*//')
+export MULTIARCH := $(DEB_HOST_MULTIARCH)
+
 
 %:
 	dh $@
+
+execute_after_dh_installexamples:
+	$(RM) \
+		debian/libimgui-dev/usr/share/doc/libimgui-dev/examples/backends/*.h \
+		debian/libimgui-dev/usr/share/doc/libimgui-dev/examples/backends/*.o \
+		debian/libimgui-dev/usr/share/doc/libimgui-dev/examples/example_android_opengl3/android/.gitignore

@@ -1,5 +1,48 @@
-template-repository (1.0-1) unstable; urgency=medium
+imgui (1.90.1+ds-1) unstable; urgency=medium
 
-  * Initial release
+  * New upstream release
+  * Build sdlrenderer backend (Closes: #1061099)
 
- -- Tsic404 <liuheng@deepin.org>  Sat, 28 Jan 2023 13:46:49 +0800
+ -- Yangfl <mmyangfl@gmail.com>  Mon, 22 Jan 2024 18:33:21 +0800
+
+imgui (1.89.6+ds-1) unstable; urgency=medium
+
+  * New upstream release (Closes: #1039589)
+  * Bump Standards-Version to 4.6.2
+
+ -- Yangfl <mmyangfl@gmail.com>  Wed, 28 Jun 2023 01:44:28 +0800
+
+imgui (1.86+ds-1) unstable; urgency=medium
+
+  * New upstream release
+  * Bump Standards-Version to 4.6.0
+
+ -- Yangfl <mmyangfl@gmail.com>  Sun, 23 Jan 2022 16:30:13 +0800
+
+imgui (1.81+ds-1) unstable; urgency=medium
+
+  * New upstream release
+  * Fix FTCBFS (Closes: #973390)
+  * Bump Standards-Version to 4.5.1
+
+ -- Yangfl <mmyangfl@gmail.com>  Tue, 16 Feb 2021 13:36:20 +0800
+
+imgui (1.79+ds-1) unstable; urgency=medium
+
+  * New upstream release
+  * Include misc/freetype
+
+ -- Yangfl <mmyangfl@gmail.com>  Thu, 29 Oct 2020 00:32:44 +0800
+
+imgui (1.77+ds-1.1) unstable; urgency=medium
+
+  * Non-maintainer upload.
+  * Source-only upload for testing migration. 
+
+ -- Boyuan Yang <byang@debian.org>  Sat, 17 Oct 2020 22:28:09 -0400
+
+imgui (1.77+ds-1) unstable; urgency=medium
+
+  * Initial release (Closes: #876213)
+
+ -- Yangfl <mmyangfl@gmail.com>  Wed, 22 Jul 2020 12:50:37 +0800
